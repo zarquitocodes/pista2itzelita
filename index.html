@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PISTA NÚMERO 2 DE LA ITZEVIDAD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --morado:#7e3ff2; --morado-claro:#cbb5ff; --dorado:#e6c36a; --blanco:#ffffff;
+    }
+    *{box-sizing:border-box;}
+    html,body{height:100%;}
+    body{
+      margin:0; background: radial-gradient(1200px 600px at 10% 10%, #2a1649 0%, #170d2e 40%, #0c0817 100%);
+      color:#f7f4ff; font-family:'Poppins',sans-serif; overflow-x:hidden;
+    }
+    .wrap{max-width:1100px;margin:auto;padding:40px 20px 100px;}
+    h1{
+      font-family:'Great Vibes',cursive; font-size:clamp(48px,7vw,86px); text-align:center;
+      background:linear-gradient(90deg,var(--morado-claro),var(--dorado),var(--morado),var(--morado-claro));
+      -webkit-background-clip:text; color:transparent; background-size:200% 100%; animation:shine 6s ease-in-out infinite;
+    }
+    @keyframes shine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    .card{background:rgba(255,255,255,.05);border-radius:24px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+    .love-text{font-size:clamp(15px,2.3vw,18px);line-height:1.8;text-align:justify;}
+    .btn{display:inline-block;padding:12px 18px;border-radius:999px;border:1px solid rgba(230,195,106,.7);color:#1a1028;background:linear-gradient(180deg,var(--dorado),#d4b056);font-weight:600;text-decoration:none;box-shadow:0 6px 22px rgba(230,195,106,.25);}
+    canvas{width:100%;height:auto;background:linear-gradient(180deg,#120a1c,#1e1231);border-radius:16px;border:1px solid rgba(255,255,255,.06)}
+    .riddle{display:none;margin-top:24px;padding:20px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(180deg,rgba(126,63,242,.16),rgba(126,63,242,.06));}
+    .riddle p{white-space:pre-line;font-style:italic;line-height:1.9}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>PISTA NÚMERO 2 DE LA ITZEVIDAD</h1>
+    <section class="card">
+      <article class="love-text">
+        <p>
+          Hola cariño linda, sabes que te amo con cada parte de mi corazón preciosa hermosa y quiero que cada detalle sea algo significativo y especial para ti.
+          Sé que tal vez es poco lo que puedo decirte de esta manera, pero créeme que lo hago todo con el corazón para la mejor persona que he podido conocer en toda mi vida.
+          Te amo profundamente Itzelita linda, de verdad espero que tú también sientas lo mismo por mí porque yo de verdad que daría mi vida por ti, cariño.
+          Tienes que resolver este juego para encontrar el siguiente acertijo. Te amo hermosaaaaaaaa.
+        </p>
+      </article>
+      <div style="text-align:center;margin-top:20px;">
+        <a class="btn" href="#juego" id="btnComenzar">Comenzar juego</a>
+      </div>
+    </section>
+
+    <section id="juego" style="margin-top:40px;">
+      <canvas id="game" width="900" height="520"></canvas>
+      <div id="riddle" class="riddle">
+        <p>Entre pétalos violetas florece el amor verdadero
+y quien halle su color sabrá el sendero sincero
+que flor guarda en su centro el tono de tu mirar
+y al entregarse entera nunca deja de amar</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const canvas=document.getElementById('game');const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const riddleBox=document.getElementById('riddle');
+    const keys={left:false,right:false,up:false};addEventListener('keydown',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=true;if(['ArrowRight','d','D'].includes(e.key))keys.right=true;if(['ArrowUp',' ','w','W'].includes(e.key))keys.up=true;});addEventListener('keyup',e=>{if(['ArrowLeft','a','A'].includes(e.key))keys.left=false;if(['ArrowRight','d','D'].includes(e.key))keys.right=false;if(['ArrowUp',' ','w','W'].includes(e.key))keys.up=false;});
+    class Rect{constructor(x,y,w,h){this.x=x;this.y=y;this.w=w;this.h=h;}get right(){return this.x+this.w}get bottom(){return this.y+this.h}}
+    class Player extends Rect{constructor(){super(60,H-120,26,36);this.vx=0;this.vy=0;this.onGround=false;this.speed=3.5;this.jump=10;}}
+    class Flower extends Rect{constructor(x,y){super(x,y,22,22)}}class Spike extends Rect{constructor(x,y,w=26,h=14){super(x,y,w,h)}}class MovingPlatform extends Rect{constructor(x,y,w,h,dx=0,dy=0,range=0){super(x,y,w,h);this.dx=dx;this.dy=dy;this.range=range;this._t=0;this._ox=x;this._oy=y;}step(){this._t+=1;this.x=this._ox+Math.sin(this._t/60)*this.range*this.dx;this.y=this._oy+Math.sin(this._t/60)*this.range*this.dy;}}
+    const GROUND_Y=H-40;function ground(){return new Rect(0,GROUND_Y,W,40)}
+    const levels=[
+      ()=>({spawn:{x:50,y:GROUND_Y-36},platforms:[ground(),new Rect(200,H-120,120,16),new Rect(380,H-200,120,16),new Rect(560,H-280,120,16),new Rect(760,H-360,80,16)],spikes:[new Spike(320,GROUND_Y-14,32,14)],flower:new Flower(780,H-388)}),
+      ()=>({spawn:{x:40,y:GROUND_Y-36},platforms:[ground(),new Rect(150,H-120,120,16),new Rect(330,H-200,100,16),new MovingPlatform(500,H-240,90,16,1,0,120),new Rect(700,H-300,90,16)],spikes:[new Spike(270,GROUND_Y-14,200,14)],flower:new Flower(720,H-328)}),
+      ()=>({spawn:{x:60,y:GROUND_Y-36},platforms:[ground(),new Rect(180,H-120,110,16),new Rect(320,H-200,110,16),new Rect(470,H-280,110,16),new MovingPlatform(640,H-260,90,16,0,1,60),new Rect(780,H-340,80,16)],spikes:[new Spike(250,GROUND_Y-14,80,14),new Spike(420,GROUND_Y-14,80,14)],flower:new Flower(795,H-368)})
+    ];
+    const player=new Player();let currentLevel=0;let world=null;function loadLevel(i){world=levels[i]();player.x=world.spawn.x;player.y=world.spawn.y;player.vx=0;player.vy=0;}
+    function rectsIntersect(a,b){return!(a.right<=b.x||a.x>=b.right||a.bottom<=b.y||a.y>=b.bottom)}
+    const GRAV=0.55,FRIC=0.82;function collide(entity){if(!entity)return;entity.onGround=false;for(const pl of world.platforms){if(pl instanceof MovingPlatform)pl.step();if(!rectsIntersect(entity,pl))continue;const prevY=entity.y-entity.vy;if(prevY+entity.h<=pl.y&&entity.vy>0){entity.y=pl.y-entity.h;entity.vy=0;entity.onGround=true;}}}
+    function reset(){player.x=world.spawn.x;player.y=world.spawn.y;player.vx=0;player.vy=0;}
+    function nextLevel(){currentLevel++;if(currentLevel>=levels.length){canvas.style.display='none';riddleBox.style.display='block';return;}loadLevel(currentLevel);}
+    function step(){const p=player;if(keys.left)p.vx-=0.6;if(keys.right)p.vx+=0.6;p.vx*=FRIC;if(keys.up&&p.onGround){p.vy=-p.jump;p.onGround=false;}p.vy+=GRAV;p.x+=p.vx;p.y+=p.vy;collide(p);if(p.y>H)reset();for(const s of world.spikes){if(rectsIntersect(p,s))reset();}if(rectsIntersect(p,world.flower))nextLevel();draw();requestAnimationFrame(step);}
+    function draw(){ctx.fillStyle='#120a1c';ctx.fillRect(0,0,W,H);for(const pl of world.platforms){ctx.fillStyle='rgba(126,63,242,.9)';ctx.fillRect(pl.x,pl.y,pl.w,pl.h);ctx.fillStyle='rgba(230,195,106,.9)';ctx.fillRect(pl.x,pl.y,pl.w,2);}for(const s of world.spikes){ctx.fillStyle='#8a5ff3';const t=Math.max(3,Math.floor(s.w/10)),st=s.w/t;for(let i=0;i<t;i++){const x=s.x+i*st,m=x+st/2;ctx.beginPath();ctx.moveTo(x,s.y+s.h);ctx.lineTo(m,s.y);ctx.lineTo(x+st,s.y+s.h);ctx.closePath();ctx.fill();}ctx.fillStyle='#3c226d';ctx.fillRect(s.x,s.y+s.h-3,s.w,3);}const f=world.flower;ctx.save();ctx.translate(f.x+11,f.y+11);for(let i=0;i<6;i++){ctx.rotate(Math.PI/3);ctx.beginPath();ctx.fillStyle='#b995ff';ctx.ellipse(0,0,10,6,0,0,Math.PI*2);ctx.fill();}ctx.beginPath();ctx.fillStyle='#e6c36a';ctx.arc(0,0,4,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle='#f4ecff';ctx.fillRect(player.x,player.y,player.w,player.h);ctx.strokeStyle='#cbb5ff';ctx.lineWidth=2;ctx.strokeRect(player.x+0.5,player.y+0.5,player.w-1,player.h-1);}loadLevel(0);step();
+  </script>
+</body>
+</html>
